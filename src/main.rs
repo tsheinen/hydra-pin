@@ -24,12 +24,12 @@ struct Args {
     /// hydra-check binary to use
     #[arg(short = 'b', long, env)]
     hydra_check: Option<String>,
-    ///
+    /// Packag
     #[arg(short, long)]
     package: String,
-    /// Output Nix file to write
+    /// Nix file to store generated overlay in
     #[arg(short, long)]
-    output: PathBuf,
+    nix: PathBuf,
     #[command(subcommand)]
     command: Action,
 }
@@ -201,14 +201,14 @@ fn existing_packages(path: impl AsRef<Path>) -> Result<Vec<Package>> {
 
 fn pin(args: &Args) -> Result<()> {
     let new_package = get_package(args)?;
-    let mut existing = existing_packages(&args.output)?;
+    let mut existing = existing_packages(&args.nix)?;
     existing.push(new_package);
-    std::fs::write(&args.output, &format!("{}", Overlay { packages: existing }))?;
+    std::fs::write(&args.nix, &format!("{}", Overlay { packages: existing }))?;
     Ok(())
 }
 
 fn unpin(args: &Args) -> Result<()> {
-    std::fs::write(&args.output, &format!("{}", Overlay { packages: existing_packages(&args.output)?.into_iter().filter(|pkg| pkg.name != args.package).collect::<Vec<_>>() }))?;
+    std::fs::write(&args.nix, &format!("{}", Overlay { packages: existing_packages(&args.nix)?.into_iter().filter(|pkg| pkg.name != args.package).collect::<Vec<_>>() }))?;
     Ok(())
 }
 
